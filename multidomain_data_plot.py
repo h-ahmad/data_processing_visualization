@@ -37,7 +37,7 @@ with open(feature_path, 'rb') as file:
         
         fig = plt.figure(1)
         ax = plt.axes([0.0, 0.0, 1.0, 1.0])
-        s = 100
+        s = 10   # size of the bubbles
         plt.scatter(data1[:, 0], data1[:, 1], color="turquoise", s=s, lw=0, label="Domain 1")
         plt.scatter(data2[:, 0], data2[:, 1], color="darkorange", s=s, lw=0, label="Domain 2")
         plt.scatter(data3[:, 0], data3[:, 1], color="navy", s=s, lw=0, label="Domain 3")
