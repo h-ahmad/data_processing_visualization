@@ -12,6 +12,10 @@ import numpy as np
 from scipy.spatial import distance
 import matplotlib.pyplot as plt
 from sklearn.metrics import euclidean_distances
+from sklearn import manifold
+from statistics import mean
+
+seed = np.random.RandomState(seed=3)   # seed:  RandomState(MT19937)
 
 feature_path =  'PACS_features.pkl'
 with open(feature_path, 'rb') as file:
@@ -24,11 +28,9 @@ with open(feature_path, 'rb') as file:
     print('labels: ', labels.keys())
     
     global_index = 0
-    global_data = []
     for index, env in enumerate(labels):
         dom_cls_data = {}
         dom_cls_label = {}
-        cls_wise_dist = []
         env_labels = np.array(torch.tensor(labels[env]).cpu())
         env_data = np.array(torch.stack(data[env]).cpu())
         # get unique class and their counts.
@@ -46,14 +48,14 @@ with open(feature_path, 'rb') as file:
                     dom_cls_data[global_index] = env_data[iteration]
                     global_index += 1
                     
-            cls_array = np.array(cls_data)
+            cls_array = np.array(cls_data)   # domain-class pair (d, c) --> M = D * C            
             cls_array -= cls_array.mean()
-            cls_dist = euclidean_distances(cls_array)
-            cls_wise_dist.append(cls_dist)
-        global_data.append(cls_wise_dist)
-    print('global_data: ', type(global_data[0][0]))
-    
-    
-    # classes, counts = np.unique(labels, return_counts=True)
-    # print('classes: ', classes, ' counts: ', counts)
-    
+            similarities = euclidean_distances(cls_array)
+            print('similarities: ', np.average(similarities))
+            
+            
+            
+    mds1 = manifold.MDS(n_components=2,max_iter=30,eps=1e-9,random_state=seed,dissimilarity="precomputed",n_jobs=1) # mds:  <class 'sklearn.manifold._mds.MDS'>
+    pos1 = mds1.fit(similarities).embedding_
+    size = 25
+    plt.scatter(pos1[:, 0], pos1[:, 1], color="navy", s=size, lw=0, label="Dom 1")
