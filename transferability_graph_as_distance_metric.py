@@ -14,8 +14,10 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import euclidean_distances
 from sklearn import manifold
 from statistics import mean
+import random
 
 seed = np.random.RandomState(seed=3)   # seed:  RandomState(MT19937)
+mds = manifold.MDS(n_components=2,max_iter=30,eps=1e-9,random_state=seed,dissimilarity="precomputed",n_jobs=1) # mds:  <class 'sklearn.manifold._mds.MDS'>
 
 feature_path =  'PACS_features.pkl'
 with open(feature_path, 'rb') as file:
@@ -27,10 +29,10 @@ with open(feature_path, 'rb') as file:
     labels = features['labels']
     print('labels: ', labels.keys())
     
-    global_index = 0
+    
+    colors = ['red', 'blue', 'darksalmon', 'green', 'black', 'yellow', 'magenta']
     for index, env in enumerate(labels):
-        dom_cls_data = {}
-        dom_cls_label = {}
+        dom_color = colors[index]
         env_labels = np.array(torch.tensor(labels[env]).cpu())
         env_data = np.array(torch.stack(data[env]).cpu())
         # get unique class and their counts.
@@ -42,20 +44,15 @@ with open(feature_path, 'rb') as file:
                 # Class wise sorting.
                 if i == j:
                     cls_data.append(env_data[iteration])
-                    cls_label.append(j)        
+                    cls_label.append(j)       
                     
-                    dom_cls_label[global_index] = j
-                    dom_cls_data[global_index] = env_data[iteration]
-                    global_index += 1
-                    
-            cls_array = np.array(cls_data)   # domain-class pair (d, c) --> M = D * C            
+            cls_array = np.array(cls_data)   # domain-class pair (d, c) --> M = D * C     
             cls_array -= cls_array.mean()
-            similarities = euclidean_distances(cls_array)
-            print('similarities: ', np.average(similarities))
+            similarity = euclidean_distances(cls_array)
+            similarity = np.average(similarity)
+            similarity = np.array(similarity)
             
-            
-            
-    mds1 = manifold.MDS(n_components=2,max_iter=30,eps=1e-9,random_state=seed,dissimilarity="precomputed",n_jobs=1) # mds:  <class 'sklearn.manifold._mds.MDS'>
-    pos1 = mds1.fit(similarities).embedding_
-    size = 25
-    plt.scatter(pos1[:, 0], pos1[:, 1], color="navy", s=size, lw=0, label="Dom 1")
+            # pos = mds.fit(similarity).embedding_
+            area = cls_array.shape[0]
+            plt.scatter(similarity, cls_array.shape[0], color=dom_color, s=area, lw=0, label="Dom 1")
+        
