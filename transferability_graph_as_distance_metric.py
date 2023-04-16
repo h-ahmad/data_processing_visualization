@@ -2,25 +2,28 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon Apr 10 13:10:14 2023
-
 @author: hussain
 """
 
 import pickle
 import torch
 import numpy as np
-from scipy.spatial import distance
 import matplotlib.pyplot as plt
 from sklearn.metrics import euclidean_distances
 from sklearn import manifold
-from statistics import mean
-import random
+import os
+import argparse
+
+parser = argparse.ArgumentParser(description = 'Main Script')
+parser.add_argument('--data_path', type = str, default = './data/', help = 'Path to the main directory')
+parser.add_argument('--dataset_name', type = str, default = 'PACS_features.pkl', help = 'dataset file')
+args = parser.parse_args() 
 
 seed = np.random.RandomState(seed=3)   # seed:  RandomState(MT19937)
 mds = manifold.MDS(n_components=7, max_iter=30, eps=1e-9, random_state=seed,
                    dissimilarity="precomputed", n_jobs=1)  # mds:  <class 'sklearn.manifold._mds.MDS'>
 
-feature_path = 'PACS_features.pkl'
+feature_path = os.path.join(args.data_path, args.dataset_name)
 with open(feature_path, 'rb') as file:
     data_store = pickle.load(file)
     print('data_store: ', data_store.keys())
@@ -30,7 +33,7 @@ with open(feature_path, 'rb') as file:
     labels = features['labels']
     print('labels: ', labels.keys())
 
-    colors = ['red', 'blue', 'darksalmon', 'green', 'black', 'yellow', 'magenta']
+    colors = ['salmon', 'steelblue', 'grey', 'darkorange', 'black', 'yellow', 'magenta']
     legen_name = []
     global_array = []
     fig, ax = plt.subplots()
@@ -63,8 +66,12 @@ with open(feature_path, 'rb') as file:
         # pos = mds.fit(similarity).embedding_
         volume = global_array[index][:, 1]
 
-        scatter = ax.scatter(global_array[index][:, 0], volume, color=dom_color, s=volume, lw=0, alpha=0.6, label='Domain '+str(index+1))
+        scatter = ax.scatter(global_array[index][:, 0], volume, color=dom_color, s=volume, lw=8, alpha=1, label='Domain '+str(index+1))
         
         for i in range(global_array[index].shape[0]):
-            ax.annotate(str(i), (global_array[index][:, 0][i], volume[i]), ha='center', va='center')
+            ax.annotate(str(i), (global_array[index][:, 0][i], volume[i]), ha='center', va='center', color='white', fontsize=8, weight='bold')
+    # plt.xlabel("Distance")
+    # plt.ylabel("No. of samples per class")
     legend = ax.legend(loc="upper left", markerscale=0.4)
+    
+    plt.savefig(os.path.join(args.data_path, 'domain_class_scatter.pdf'), format="pdf", bbox_inches="tight")
