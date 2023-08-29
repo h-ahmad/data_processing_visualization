@@ -10,11 +10,11 @@ import os
 import csv
 import pandas as pd
 
-df_csv_append = pd.DataFrame()
-
 model_list = ['convnext', 'deit', 'swin', 'volo']
 
 for i in range(len(model_list)):
+    print('processing folder ', i)
+    df_csv_append = pd.DataFrame()
     folder = model_list[i]
     csv_list = [csv_name for csv_name in os.listdir(folder)]
     for j in range(len(csv_list)):
