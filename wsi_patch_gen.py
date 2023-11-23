@@ -104,15 +104,6 @@ def Extract_Patch_From_Slide_STRIDE(tslide:openslide.ImageSlide, tissue_mask, pa
                             print(f'slide {tslide_name} error patch {num_error}')
     if num_error != 0:
         print(f'---------------------In total {num_error} error patch for slide {tslide_name}')
-        
-# =============================================================================
-# def readSlide(slide_full_path):
-#     time_0 = time.time()
-#     slide = openslide.open_slide(slide_full_path)
-#     time_1 = time.time()
-#     total_time = time_1 - time_0
-#     return slide
-# =============================================================================
 
 def Thread_PatchFromSlides(args):
     normSlidePath, slideName, tsave_slide_dir, patch_level_list, psize_list, mask_dimension_level, patch_dimension_level, stride, psize, tissue_mask_threshold = args
@@ -120,10 +111,7 @@ def Thread_PatchFromSlides(args):
         tsave_dir_level = getFolder_name(tsave_slide_dir, tlevel, tsize)
         if not os.path.exists(tsave_dir_level):
             os.makedirs(tsave_dir_level)
-            
-    tslide = openslide.open_slide(normSlidePath)
-    # tslide = readSlide(normSlidePath);
-    
+    tslide = openslide.open_slide(normSlidePath) 
     tissue_mask, boundingBoxes = get_roi_bounds(tslide, isDrawContoursOnImages=False, mask_level=mask_dimension_level)  # mask_level: absolute level
     print('before div: ', tissue_mask.shape, tissue_mask.min(), tissue_mask.max())
     tissue_mask = tissue_mask // 255
